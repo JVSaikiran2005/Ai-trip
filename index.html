@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WanderWise AI - Plan Your Trip</title>
+    <!-- Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic Reset & Font */
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            color: #333;
+            background: linear-gradient(to bottom right, #e0f2fe, #e8eaf6); /* from-blue-50 to-indigo-100 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Styling */
+        header {
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
+            padding: 1rem 2.5rem; /* py-4 px-6 md:px-10 */
+            display: flex;
+            justify-content: center; /* justify-center */
+            align-items: center;
+            border-bottom-left-radius: 1rem; /* rounded-b-xl */
+            border-bottom-right-radius: 1rem; /* rounded-b-xl */
+            margin-bottom: 1.5rem; /* Added for spacing */
+        }
+
+        header h1 {
+            font-size: 2.25rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            color: #4338ca; /* text-indigo-700 */
+        }
+
+        /* Main Content Area */
+        main {
+            flex-grow: 1;
+            max-width: 960px; /* container mx-auto */
+            margin-left: auto;
+            margin-right: auto;
+            padding: 1.5rem; /* p-6 md:p-10 */
+            width: 100%; /* Ensure it takes full width within padding */
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        .card {
+            background-color: #fff;
+            padding: 2rem; /* p-8 */
+            border-radius: 1rem; /* rounded-2xl */
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); /* shadow-xl */
+        }
+
+        .card h2 {
+            font-size: 2rem; /* text-3xl */
+            font-weight: 600; /* font-semibold */
+            color: #4338ca; /* text-indigo-700 */
+            margin-bottom: 1.5rem; /* mb-6 */
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* grid-cols-1 */
+            gap: 1.5rem; /* gap-6 */
+            margin-bottom: 2rem; /* mb-8 */
+        }
+
+        @media (min-width: 768px) { /* md breakpoint */
+            .form-grid {
+                grid-template-columns: 1fr 1fr; /* md:grid-cols-2 */
+            }
+            .form-grid .full-width {
+                grid-column: span 2; /* md:col-span-2 */
+            }
+        }
+
+        .form-group label {
+            display: block;
+            color: #4b5563; /* text-gray-700 */
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 500; /* font-medium */
+            margin-bottom: 0.5rem; /* mb-2 */
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="date"],
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem; /* px-4 py-3 */
+            border: 1px solid #d1d5db; /* border border-gray-300 */
+            border-radius: 0.5rem; /* rounded-lg */
+            font-size: 1.125rem; /* text-lg */
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #6366f1; /* focus:border-indigo-500 */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25); /* focus:ring-indigo-500 */
+        }
+
+        .interests-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* grid-cols-2 */
+            gap: 1rem; /* gap-4 */
+        }
+
+        @media (min-width: 640px) { /* sm breakpoint */
+            .interests-grid {
+                grid-template-columns: repeat(3, 1fr); /* sm:grid-cols-3 */
+            }
+        }
+
+        @media (min-width: 768px) { /* md breakpoint */
+            .interests-grid {
+                grid-template-columns: repeat(4, 1fr); /* md:grid-cols-4 */
+            }
+        }
+
+        .interest-checkbox {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .interest-checkbox input[type="checkbox"] {
+            height: 1.25rem; /* h-5 */
+            width: 1.25rem; /* w-5 */
+            color: #4f46e5; /* text-indigo-600 */
+            border-radius: 0.25rem; /* rounded */
+            border: 1px solid #d1d5db;
+            appearance: none; /* Hide default checkbox */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .interest-checkbox input[type="checkbox"]:checked {
+            background-color: #4f46e5;
+            border-color: #4f46e5;
+        }
+
+        .interest-checkbox input[type="checkbox"]:checked::before {
+            content: '\2713'; /* Checkmark character */
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .interest-checkbox span {
+            margin-left: 0.5rem; /* Equivalent to Tailwind's space-x-2 */
+            color: #4b5563; /* text-gray-700 */
+            font-size: 1rem; /* text-base */
+        }
+
+        .generate-button {
+            width: 100%;
+            background-color: #4f46e5; /* bg-indigo-600 */
+            color: #fff;
+            padding: 0.75rem 1.5rem; /* py-3 px-6 */
+            border-radius: 0.75rem; /* rounded-xl */
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600; /* font-semibold */
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-lg */
+        }
+
+        .generate-button:hover {
+            background-color: #4338ca; /* hover:bg-indigo-700 */
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* hover:shadow-xl */
+        }
+
+        .generate-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #dc2626; /* text-red-600 */
+            margin-top: 1rem; /* mt-4 */
+            text-align: center;
+            font-size: 1.125rem; /* text-lg */
+        }
+
+        /* Itinerary Display */
+        .itinerary-display {
+            margin-top: 2.5rem; /* mt-10 */
+            padding: 1.5rem; /* p-6 */
+            background-color: #eef2ff; /* bg-indigo-50 */
+            border-radius: 1rem; /* rounded-2xl */
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06); /* shadow-inner */
+            border: 1px solid #c7d2fe; /* border border-indigo-200 */
+        }
+
+        .itinerary-display h3 {
+            font-size: 2rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            color: #3730a3; /* text-indigo-800 */
+            margin-bottom: 1rem; /* mb-4 */
+        }
+
+        .itinerary-display p {
+            color: #4f46e5; /* text-indigo-600 */
+            font-size: 1.125rem; /* text-lg */
+            margin-bottom: 1.5rem; /* mb-6 */
+        }
+
+        .itinerary-display p strong {
+            font-weight: 600; /* font-semibold */
+        }
+
+        .day-plan {
+            margin-bottom: 1.5rem; /* mb-6 */
+            padding-bottom: 1.5rem; /* pb-6 */
+            border-bottom: 1px solid #c7d2fe; /* border-b border-indigo-200 */
+        }
+
+        .day-plan:last-child {
+            border-bottom: none; /* last:border-b-0 */
+        }
+
+        .day-plan h4 {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 600; /* font-semibold */
+            color: #4338ca; /* text-indigo-700 */
+            margin-bottom: 0.75rem; /* mb-3 */
+        }
+
+        .day-plan ul {
+            list-style: disc;
+            list-style-position: inside;
+            padding-left: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+            line-height: 1.5; /* space-y-2 equivalent */
+        }
+
+        .day-plan ul li {
+            color: #4b5563; /* text-gray-700 */
+            font-size: 1.125rem; /* text-lg */
+        }
+
+        .activity-location {
+            color: #6b7280; /* text-gray-500 */
+            font-size: 0.875rem; /* text-sm */
+            margin-left: 0.5rem; /* ml-2 */
+        }
+
+        .map-button {
+            margin-left: 0.5rem; /* ml-2 */
+            color: #2563eb; /* text-blue-600 */
+            font-weight: 500; /* font-medium */
+            font-size: 0.875rem; /* text-sm */
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+
+        .map-button:hover {
+            color: #1d4ed8; /* hover:text-blue-800 */
+        }
+
+        .day-plan p.notes {
+            margin-top: 0.75rem; /* mt-3 */
+            color: #4b5563; /* text-gray-600 */
+            font-style: italic;
+            font-size: 1rem; /* text-base */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>WanderWise AI</h1>
+    </header>
+
+    <main>
+        <div class="card">
+            <h2>Plan Your Dream Trip</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="destination">Destination</label>
+                    <input type="text" id="destination" placeholder="e.g., Paris, Tokyo, Bali">
+                </div>
+                <div class="form-group">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="form-group">
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate">
+                </div>
+                <div class="form-group full-width">
+                    <label>Interests</label>
+                    <div class="interests-grid">
+                        <label class="interest-checkbox">
+                            <input type="checkbox" value="Culture">
+                            <span>Culture</span>
+                        </label>
+                        <label class="interest-checkbox">
+                            <input type="checkbox" value="Adventure">
+                            <span>Adventure</span>
+                        </label>
+                        <label class="interest-checkbox">
+                            <input type="checkbox" value="Relaxation">
+                            <span>Relaxation</span>
+                        </label>
+                        <label class="interest-checkbox">
+                            <input type="checkbox" value="Foodie">
+                            <span>Foodie</span>
+                        </label>
+                        <label class="interest-checkbox">
+                            <input type="checkbox" value="History">
+                            <span>History</span>
+                        </label>
+                        <label class="interest-checkbox">
+                            <input type="checkbox" value="Nature">
+                            <span>Nature</span>
+                        </label>
+                        <label class="interest-checkbox">
+                            <input type="checkbox" value="Shopping">
+                            <span>Shopping</span>
+                        </label>
+                        <label class="interest-checkbox">
+                            <input type="checkbox" value="Nightlife">
+                            <span>Nightlife</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="budget">Budget</label>
+                    <select id="budget">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="luxury">Luxury</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="generateItineraryBtn" class="generate-button">
+                Generate My Itinerary
+            </button>
+
+            <p id="itineraryError" class="error-message" style="display: none;"></p>
+
+            <div id="itineraryDisplay" class="itinerary-display" style="display: none;">
+                <h3 id="itineraryTitle"></h3>
+                <p id="itineraryDetails"></p>
+                <div id="itineraryDays"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // DOM Elements
+        const destinationInput = document.getElementById('destination');
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        const interestsCheckboxes = document.querySelectorAll('.interests-grid input[type="checkbox"]');
+        const budgetSelect = document.getElementById('budget');
+        const generateButton = document.getElementById('generateItineraryBtn');
+        const itineraryError = document.getElementById('itineraryError');
+        const itineraryDisplay = document.getElementById('itineraryDisplay');
+        const itineraryTitle = document.getElementById('itineraryTitle');
+        const itineraryDetails = document.getElementById('itineraryDetails');
+        const itineraryDays = document.getElementById('itineraryDays');
+
+        // Event Listener for Generate Button
+        generateButton.addEventListener('click', generateItinerary);
+
+        // Function to handle interest changes
+        function getSelectedInterests() {
+            const selectedInterests = [];
+            interestsCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    selectedInterests.push(checkbox.value);
+                }
+            });
+            return selectedInterests;
+        }
+
+        // Function to open Google Maps
+        function openGoogleMaps(location) {
+            if (location) {
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+                window.open(mapUrl, '_blank');
+            }
+        }
+
+        // Main function to generate itinerary
+        async function generateItinerary() {
+            const destination = destinationInput.value.trim();
+            const startDate = startDateInput.value;
+            const endDate = endDateInput.value;
+            const interests = getSelectedInterests();
+            const budget = budgetSelect.value;
+
+            // Input Validation
+            if (!destination || !startDate || !endDate || interests.length === 0) {
+                itineraryError.textContent = 'Please fill in destination, start date, end date, and select at least one interest.';
+                itineraryError.style.display = 'block';
+                itineraryDisplay.style.display = 'none';
+                return;
+            }
+
+            // Reset UI
+            itineraryError.style.display = 'none';
+            itineraryDisplay.style.display = 'none';
+            generateButton.textContent = 'Generating Itinerary...';
+            generateButton.disabled = true;
+
+            const prompt = `Generate a detailed travel itinerary for a trip to ${destination} from ${startDate} to ${endDate}. The traveler is interested in ${interests.join(', ')} and has a ${budget} budget. Provide a day-by-day plan including suggested activities, attractions, and dining options. For each activity, include a 'name' (string) and 'location' (string, e.g., "Eiffel Tower, Paris, France" or "Louvre Museum, Paris, France"). Format the response as a JSON object with a "title", "destination", "dates" (e.g., "YYYY-MM-DD to YYYY-MM-DD"), and an "itinerary" array, where each item in the array has "day" (e.g., "Day 1"), "activities" (array of objects), and "notes" (string).`;
+
+            try {
+                const chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = {
+                    contents: chatHistory,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                title: { type: "STRING" },
+                                destination: { type: "STRING" },
+                                dates: { type: "STRING" },
+                                itinerary: {
+                                    type: "ARRAY",
+                                    items: {
+                                        type: "OBJECT",
+                                        properties: {
+                                            day: { type: "STRING" },
+                                            activities: {
+                                                type: "ARRAY",
+                                                items: {
+                                                    type: "OBJECT",
+                                                    properties: {
+                                                        name: { type: "STRING" },
+                                                        location: { type: "STRING" }
+                                                    },
+                                                    propertyOrdering: ["name", "location"]
+                                                }
+                                            },
+                                            notes: { type: "STRING" }
+                                        },
+                                        propertyOrdering: ["day", "activities", "notes"]
+                                    }
+                                }
+                            },
+                            propertyOrdering: ["title", "destination", "dates", "itinerary"]
+                        }
+                    }
+                };
+
+                const apiKey = "AIzaSyDar4x-HSQpMmsevcMfLWoio942t7ClHv4"; // Leave as empty string for Canvas to provide
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                console.log('API Raw Response:', result); // Log the raw response for debugging
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const jsonText = result.candidates[0].content.parts[0].text;
+                    try {
+                        const parsedItinerary = JSON.parse(jsonText);
+                        displayItinerary(parsedItinerary);
+                    } catch (jsonError) {
+                        itineraryError.textContent = 'Error parsing AI response (invalid JSON). Please try again.';
+                        itineraryError.style.display = 'block';
+                        console.error('JSON parsing error:', jsonError);
+                        console.error('Problematic JSON text:', jsonText);
+                    }
+                } else {
+                    itineraryError.textContent = 'Failed to generate itinerary. AI did not return a valid response.';
+                    itineraryError.style.display = 'block';
+                    console.error('Unexpected API response structure or empty candidates:', result);
+                }
+            } catch (error) {
+                itineraryError.textContent = 'Error communicating with AI service: ' + error.message;
+                itineraryError.style.display = 'block';
+                console.error('Network or API call error:', error);
+            } finally {
+                generateButton.textContent = 'Generate My Itinerary';
+                generateButton.disabled = false;
+            }
+        }
+
+        // Function to display the generated itinerary
+        function displayItinerary(itinerary) {
+            itineraryTitle.textContent = itinerary.title || 'Your Personalized Itinerary';
+            itineraryDetails.innerHTML = `<strong>Destination:</strong> ${itinerary.destination} <br /><strong>Dates:</strong> ${itinerary.dates}`;
+            itineraryDays.innerHTML = ''; // Clear previous days
+
+            if (itinerary.itinerary && itinerary.itinerary.length > 0) {
+                itinerary.itinerary.forEach((dayPlan, index) => {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.classList.add('day-plan');
+                    if (index === itinerary.itinerary.length - 1) {
+                        dayDiv.classList.add('last-child'); // Apply last-child class for CSS
+                    }
+
+                    const dayHeader = document.createElement('h4');
+                    dayHeader.textContent = dayPlan.day;
+                    dayDiv.appendChild(dayHeader);
+
+                    const activityList = document.createElement('ul');
+                    if (dayPlan.activities && dayPlan.activities.length > 0) {
+                        dayPlan.activities.forEach(activity => {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = activity.name;
+                            if (activity.location) {
+                                const locationSpan = document.createElement('span');
+                                locationSpan.classList.add('activity-location');
+                                locationSpan.textContent = ` (${activity.location})`;
+                                listItem.appendChild(locationSpan);
+
+                                const mapButton = document.createElement('button');
+                                mapButton.classList.add('map-button');
+                                mapButton.textContent = '(View on Map)';
+                                mapButton.title = 'View on Map';
+                                mapButton.addEventListener('click', () => openGoogleMaps(activity.location));
+                                listItem.appendChild(mapButton);
+                            }
+                            activityList.appendChild(listItem);
+                        });
+                    } else {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = 'No activities planned for this day.';
+                        activityList.appendChild(listItem);
+                    }
+                    dayDiv.appendChild(activityList);
+
+                    if (dayPlan.notes) {
+                        const notesPara = document.createElement('p');
+                        notesPara.classList.add('notes');
+                        notesPara.textContent = `Notes: ${dayPlan.notes}`;
+                        dayDiv.appendChild(notesPara);
+                    }
+                    itineraryDays.appendChild(dayDiv);
+                });
+            } else {
+                itineraryDays.innerHTML = '<p class="text-gray-600 text-lg">No detailed itinerary available. Please try refining your request.</p>';
+            }
+            itineraryDisplay.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
